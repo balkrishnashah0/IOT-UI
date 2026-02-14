@@ -540,8 +540,15 @@
     function toggleAutoMode() {
         appState.isAutoMode = !appState.isAutoMode;
         const icon = document.getElementById('autoModeIcon');
+        const btn = document.getElementById('autoModeBtn');
         if (icon) {
             icon.textContent = appState.isAutoMode ? 'auto_awesome' : 'manual_mode';
+        }
+        if (btn) {
+            const textSpan = btn.querySelector('span:last-child');
+            if (textSpan) {
+                textSpan.textContent = appState.isAutoMode ? 'Auto Mode' : 'Manual Mode';
+            }
         }
         showToast(`Auto mode ${appState.isAutoMode ? 'enabled' : 'disabled'}`, 
                   appState.isAutoMode ? 'success' : 'warning');
