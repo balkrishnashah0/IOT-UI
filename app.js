@@ -232,11 +232,15 @@
     }
 
     function addNewTank(name, capacity) {
+        const tankId = appState.nextTankId++;
+        const tankName = name || `Tank ${tankId}`;
+        const tankCapacity = capacity || 1000;
+        
         const newTank = {
-            id: appState.nextTankId++,
-            name: name || `Tank ${appState.nextTankId - 1}`,
+            id: tankId,
+            name: tankName,
             level: 0,
-            capacity: capacity || 1000,
+            capacity: tankCapacity,
             icon: 'water_drop',
             filling: false,
             draining: false
@@ -244,7 +248,81 @@
         
         appState.tanks.push(newTank);
         
-        showToast(`Added ${newTank.name} (${newTank.capacity}L)`, 'success');
+        // Create and insert new tank card HTML
+        const tanksGrid = document.getElementById('tanksGrid');
+        if (tanksGrid) {
+            const tankCard = document.createElement('div');
+            tankCard.className = 'card tank-card';
+            tankCard.id = `tank${tankId}`;
+            tankCard.innerHTML = `
+                <div class="tank-card-header">
+                    <div class="tank-info">
+                        <h3>${tankName}</h3>
+                    </div>
+                    <button class="tank-settings-btn" aria-label="Tank Settings" data-tank-id="${tankId}">
+                        <span class="material-icons">more_vert</span>
+                    </button>
+                </div>
+                
+                <div class="tank-visual">
+                    <div class="tank-container">
+                        <div class="water-fill" id="tank${tankId}Fill" style="height: 0%;">
+                            <span class="water-percentage" id="tank${tankId}Percentage">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tank-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Level</span>
+                        <span class="stat-value" id="tank${tankId}Level">0 L</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Capacity</span>
+                        <span class="stat-value">${tankCapacity} L</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Est. Full</span>
+                        <span class="stat-value" id="tank${tankId}EstFull">--</span>
+                    </div>
+                </div>
+                
+                <div class="tank-actions">
+                    <button class="tank-action-btn fill" id="tank${tankId}FillBtn" data-tank-id="${tankId}" aria-label="Fill Tank">
+                        <span class="material-icons">water</span>
+                    </button>
+                    <button class="tank-action-btn empty" id="tank${tankId}EmptyBtn" data-tank-id="${tankId}" aria-label="Empty Tank">
+                        <span class="material-icons">remove_circle_outline</span>
+                    </button>
+                </div>
+            `;
+            
+            // Insert before the add tank card
+            const addTankCard = document.getElementById('addTankCard');
+            if (addTankCard) {
+                tanksGrid.insertBefore(tankCard, addTankCard);
+            } else {
+                tanksGrid.appendChild(tankCard);
+            }
+            
+            // Re-attach event listeners for new tank buttons
+            const fillBtn = tankCard.querySelector('.tank-action-btn.fill');
+            if (fillBtn) {
+                fillBtn.onclick = () => fillTank(tankId);
+            }
+            
+            const emptyBtn = tankCard.querySelector('.tank-action-btn.empty');
+            if (emptyBtn) {
+                emptyBtn.onclick = () => emptyTank(tankId);
+            }
+            
+            const settingsBtn = tankCard.querySelector('.tank-settings-btn');
+            if (settingsBtn) {
+                settingsBtn.onclick = () => showToast('Tank settings coming soon!', 'info');
+            }
+        }
+        
+        showToast(`Added ${tankName} (${tankCapacity}L)`, 'success');
         
         // Hide add form
         const addTankCard = document.getElementById('addTankCard');
