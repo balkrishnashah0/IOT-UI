@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Management IoT Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <!-- App Container - Mobile First -->
+    <div class="app-container" id="appContainer">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <span class="material-icons menu-icon">menu</span>
+                <h1 class="app-title">Water Control</h1>
+            </div>
+            <div class="header-right">
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span class="material-icons theme-icon" id="themeIcon">light_mode</span>
+                </button>
+                <span class="material-icons notification-icon">notifications</span>
+                <div class="status-indicator online"></div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Water Level Overview Card -->
+            <section class="water-level-section">
+                <div class="card water-level-card">
+                    <div class="card-header">
+                        <span class="material-icons water-drop">water_drop</span>
+                        <h2>Water Tank</h2>
+                        <button class="card-action-btn" id="tankSettingsBtn" aria-label="Tank Settings">
+                            <span class="material-icons">settings</span>
+                        </button>
+                    </div>
+                    <div class="water-tank-visual">
+                        <div class="tank-container">
+                            <div class="water-fill" id="waterFill" style="height: 65%;">
+                                <span class="water-percentage" id="waterPercentage">65%</span>
+                            </div>
+                            <div class="tank-markers">
+                                <span>100%</span>
+                                <span>75%</span>
+                                <span>50%</span>
+                                <span>25%</span>
+                                <span>0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="water-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Current Level</span>
+                            <span class="stat-value" id="currentLevel">650 L</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Capacity</span>
+                            <span class="stat-value">1000 L</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Est. Full</span>
+                            <span class="stat-value" id="estFullTime">~45 min</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions Section -->
+            <section class="quick-actions-section">
+                <h2 class="section-title">Quick Actions</h2>
+                <div class="actions-grid">
+                    <button class="action-btn primary-action" id="fillTankBtn">
+                        <span class="material-icons">water</span>
+                        <span>Fill Tank</span>
+                    </button>
+                    <button class="action-btn secondary-action" id="emptyTankBtn">
+                        <span class="material-icons">remove_circle_outline</span>
+                        <span>Empty</span>
+                    </button>
+                    <button class="action-btn secondary-action" id="autoModeBtn">
+                        <span class="material-icons" id="autoModeIcon">auto_awesome</span>
+                        <span>Auto Mode</span>
+                    </button>
+                    <button class="action-btn warning-action" id="emergencyBtn">
+                        <span class="material-icons">emergency</span>
+                        <span>Emergency</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Pump Controls Section -->
+            <section class="pump-controls-section">
+                <h2 class="section-title">Pump Controls</h2>
+                <div class="pumps-list">
+                    <!-- Pump 1 -->
+                    <div class="card pump-card">
+                        <div class="pump-info">
+                            <div class="pump-icon-wrapper active" id="pump1IconWrapper">
+                                <span class="material-icons pump-icon">agriculture</span>
+                            </div>
+                            <div class="pump-details">
+                                <h3>Main Pump</h3>
+                                <p class="pump-status active" id="pump1Status">Running</p>
+                                <p class="pump-info-text" id="pump1Info">Flow: 12.5 L/min</p>
+                            </div>
+                        </div>
+                        <div class="pump-controls">
+                            <label class="switch" title="Toggle Main Pump">
+                                <input type="checkbox" checked id="pump1Toggle" aria-label="Toggle Main Pump">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Pump 2 -->
+                    <div class="card pump-card">
+                        <div class="pump-info">
+                            <div class="pump-icon-wrapper inactive" id="pump2IconWrapper">
+                                <span class="material-icons pump-icon">agriculture</span>
+                            </div>
+                            <div class="pump-details">
+                                <h3>Backup Pump</h3>
+                                <p class="pump-status inactive" id="pump2Status">Standby</p>
+                                <p class="pump-info-text" id="pump2Info">Ready to activate</p>
+                            </div>
+                        </div>
+                        <div class="pump-controls">
+                            <label class="switch" title="Toggle Backup Pump">
+                                <input type="checkbox" id="pump2Toggle" aria-label="Toggle Backup Pump">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Pump 3 -->
+                    <div class="card pump-card">
+                        <div class="pump-info">
+                            <div class="pump-icon-wrapper maintenance" id="pump3IconWrapper">
+                                <span class="material-icons pump-icon">agriculture</span>
+                            </div>
+                            <div class="pump-details">
+                                <h3>Booster Pump</h3>
+                                <p class="pump-status maintenance" id="pump3Status">Maintenance</p>
+                                <p class="pump-info-text" id="pump3Info">Service in 3 days</p>
+                            </div>
+                        </div>
+                        <div class="pump-controls">
+                            <label class="switch" title="Booster Pump (Maintenance Mode)">
+                                <input type="checkbox" disabled id="pump3Toggle" aria-label="Booster Pump disabled for maintenance">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Valve Controls Section - Fixed Stepped Dial -->
+            <section class="valve-controls-section">
+                <h2 class="section-title">Valve Controls</h2>
+                <div class="valves-list">
+                    
+                    <!-- Main Valve -->
+                    <div class="card valve-card">
+                        <div class="valve-header">
+                            <span class="material-icons valve-icon">pipeline</span>
+                            <h3>Main Valve</h3>
+                            <div class="valve-status-badge open" id="mainValveStatusBadge">
+                                <span>OPEN</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Stepped Dial Control -->
+                        <div class="valve-dial-container">
+                            <div class="stepped-dial" id="mainValveDial">
+                                <button class="dial-step" data-value="0">0</button>
+                                <button class="dial-step" data-value="25">25</button>
+                                <button class="dial-step" data-value="50">50</button>
+                                <button class="dial-step" data-value="75">75</button>
+                                <button class="dial-step active" data-value="100">100</button>
+                            </div>
+                            <div class="valve-percentage-display">
+                                <input type="number" class="valve-input" id="mainValveInput" value="100" min="0" max="100" aria-label="Main Valve Percentage">
+                                <span class="percentage-symbol">%</span>
+                            </div>
+                        </div>
+                        
+                        <button class="valve-toggle-btn open" id="mainValveToggle" aria-label="Toggle Main Valve">
+                            <span class="material-icons">toggle_on</span>
+                            Close Valve
+                        </button>
+                    </div>
+
+                    <!-- Garden Valve -->
+                    <div class="card valve-card">
+                        <div class="valve-header">
+                            <span class="material-icons valve-icon">grass</span>
+                            <h3>Garden</h3>
+                            <div class="valve-status-badge open" id="gardenValveStatusBadge">
+                                <span>OPEN</span>
+                            </div>
+                        </div>
+                        
+                        <div class="valve-dial-container">
+                            <div class="stepped-dial" id="gardenValveDial">
+                                <button class="dial-step" data-value="0">0</button>
+                                <button class="dial-step" data-value="25">25</button>
+                                <button class="dial-step" data-value="50">50</button>
+                                <button class="dial-step active" data-value="75">75</button>
+                                <button class="dial-step" data-value="100">100</button>
+                            </div>
+                            <div class="valve-percentage-display">
+                                <input type="number" class="valve-input" id="gardenValveInput" value="75" min="0" max="100" aria-label="Garden Valve Percentage">
+                                <span class="percentage-symbol">%</span>
+                            </div>
+                        </div>
+                        
+                        <button class="valve-toggle-btn open" id="gardenValveToggle" aria-label="Toggle Garden Valve">
+                            <span class="material-icons">toggle_on</span>
+                            Close Valve
+                        </button>
+                    </div>
+
+                    <!-- House Valve -->
+                    <div class="card valve-card">
+                        <div class="valve-header">
+                            <span class="material-icons valve-icon">home</span>
+                            <h3>House Supply</h3>
+                            <div class="valve-status-badge open" id="houseValveStatusBadge">
+                                <span>OPEN</span>
+                            </div>
+                        </div>
+                        
+                        <div class="valve-dial-container">
+                            <div class="stepped-dial" id="houseValveDial">
+                                <button class="dial-step" data-value="0">0</button>
+                                <button class="dial-step" data-value="25">25</button>
+                                <button class="dial-step" data-value="50">50</button>
+                                <button class="dial-step" data-value="75">75</button>
+                                <button class="dial-step active" data-value="100">100</button>
+                            </div>
+                            <div class="valve-percentage-display">
+                                <input type="number" class="valve-input" id="houseValveInput" value="100" min="0" max="100" aria-label="House Valve Percentage">
+                                <span class="percentage-symbol">%</span>
+                            </div>
+                        </div>
+                        
+                        <button class="valve-toggle-btn open" id="houseValveToggle" aria-label="Toggle House Valve">
+                            <span class="material-icons">toggle_on</span>
+                            Close Valve
+                        </button>
+                    </div>
+
+                    <!-- Overflow Valve -->
+                    <div class="card valve-card">
+                        <div class="valve-header">
+                            <span class="material-icons valve-icon warning-icon">warning</span>
+                            <h3>Overflow</h3>
+                            <div class="valve-status-badge closed" id="overflowValveStatusBadge">
+                                <span>CLOSED</span>
+                            </div>
+                        </div>
+                        
+                        <div class="valve-dial-container">
+                            <div class="stepped-dial" id="overflowValveDial">
+                                <button class="dial-step active" data-value="0">0</button>
+                                <button class="dial-step" data-value="25">25</button>
+                                <button class="dial-step" data-value="50">50</button>
+                                <button class="dial-step" data-value="75">75</button>
+                                <button class="dial-step" data-value="100">100</button>
+                            </div>
+                            <div class="valve-percentage-display">
+                                <input type="number" class="valve-input" id="overflowValveInput" value="0" min="0" max="100" aria-label="Overflow Valve Percentage">
+                                <span class="percentage-symbol">%</span>
+                            </div>
+                        </div>
+                        
+                        <button class="valve-toggle-btn closed" id="overflowValveToggle" aria-label="Toggle Overflow Valve">
+                            <span class="material-icons">toggle_off</span>
+                            Open Valve
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Flow Rate Monitor -->
+            <section class="flow-monitor-section">
+                <h2 class="section-title">Flow Monitor</h2>
+                <div class="card flow-card">
+                    <div class="flow-display">
+                        <div class="flow-rate">
+                            <span class="flow-value" id="flowValue">12.5</span>
+                            <span class="flow-unit">L/min</span>
+                        </div>
+                        <div class="flow-stats">
+                            <div class="flow-stat">
+                                <span class="flow-stat-label">Peak</span>
+                                <span class="flow-stat-value" id="flowPeak">18.2 L/min</span>
+                            </div>
+                            <div class="flow-stat">
+                                <span class="flow-stat-label">Avg</span>
+                                <span class="flow-stat-value" id="flowAvg">10.3 L/min</span>
+                            </div>
+                        </div>
+                        <div class="flow-icon">
+                            <span class="material-icons flowing">water</span>
+                        </div>
+                    </div>
+                    <div class="flow-chart" id="flowChart">
+                        <div class="flow-bar" style="height: 60%;"></div>
+                        <div class="flow-bar" style="height: 80%;"></div>
+                        <div class="flow-bar" style="height: 45%;"></div>
+                        <div class="flow-bar" style="height: 90%;"></div>
+                        <div class="flow-bar" style="height: 70%;"></div>
+                        <div class="flow-bar" style="height: 55%;"></div>
+                        <div class="flow-bar" style="height: 85%;"></div>
+                    </div>
+                    <div class="flow-labels">
+                        <span>6AM</span>
+                        <span>8AM</span>
+                        <span>10AM</span>
+                        <span>12PM</span>
+                        <span>2PM</span>
+                        <span>4PM</span>
+                        <span>6PM</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schedule Section -->
+            <section class="schedule-section">
+                <h2 class="section-title">Today's Schedule</h2>
+                <div class="schedule-list">
+                    <div class="card schedule-card completed">
+                        <div class="schedule-time">
+                            <span class="time">06:00</span>
+                            <span class="period">AM</span>
+                        </div>
+                        <div class="schedule-details">
+                            <h3>Morning Fill</h3>
+                            <p>Completed</p>
+                            <span class="schedule-duration">Filled: 650L</span>
+                        </div>
+                        <span class="material-icons check-icon">check_circle</span>
+                    </div>
+
+                    <div class="card schedule-card active">
+                        <div class="schedule-time">
+                            <span class="time">14:00</span>
+                            <span class="period">PM</span>
+                        </div>
+                        <div class="schedule-details">
+                            <h3>Garden Irrigation</h3>
+                            <p>In Progress</p>
+                            <span class="schedule-duration">Running for 15 min</span>
+                        </div>
+                        <span class="material-icons play-icon">play_circle</span>
+                    </div>
+
+                    <div class="card schedule-card pending">
+                        <div class="schedule-time">
+                            <span class="time">20:00</span>
+                            <span class="period">PM</span>
+                        </div>
+                        <div class="schedule-details">
+                            <h3>Night Fill</h3>
+                            <p>Scheduled</p>
+                            <span class="schedule-duration">Target: 95%</span>
+                        </div>
+                        <span class="material-icons schedule-icon">schedule</span>
+                    </div>
+                </div>
+                
+                <!-- Add Schedule Button -->
+                <button class="add-schedule-btn" id="addScheduleBtn">
+                    <span class="material-icons">add</span>
+                    Add Schedule
+                </button>
+            </section>
+
+            <!-- Alerts Section -->
+            <section class="alerts-section">
+                <h2 class="section-title">Alerts</h2>
+                <div class="alerts-list">
+                    <div class="card alert-card warning" id="alert1">
+                        <span class="material-icons alert-icon">warning</span>
+                        <div class="alert-content">
+                            <h3>Low Water Level</h3>
+                            <p>Tank at 65% - Consider filling soon</p>
+                            <span class="alert-time">10 min ago</span>
+                        </div>
+                        <button class="alert-dismiss" aria-label="Dismiss alert">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+
+                    <div class="card alert-card info" id="alert2">
+                        <span class="material-icons alert-icon">info</span>
+                        <div class="alert-content">
+                            <h3>Maintenance Due</h3>
+                            <p>Booster pump service in 3 days</p>
+                            <span class="alert-time">2 hours ago</span>
+                        </div>
+                        <button class="alert-dismiss" aria-label="Dismiss alert">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Status Section -->
+            <section class="system-status-section">
+                <h2 class="section-title">System Status</h2>
+                <div class="card system-status-card">
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="material-icons status-icon">wifi</span>
+                            <div class="status-info">
+                                <span class="status-label">Connection</span>
+                                <span class="status-value connected">Connected</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <span class="material-icons status-icon">battery_charging_full</span>
+                            <div class="status-info">
+                                <span class="status-label">Power</span>
+                                <span class="status-value">Main Power</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <span class="material-icons status-icon">memory</span>
+                            <div class="status-info">
+                                <span class="status-label">Controller</span>
+                                <span class="status-value connected">Online</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <span class="material-icons status-icon">sensors</span>
+                            <div class="status-info">
+                                <span class="status-label">Sensors</span>
+                                <span class="status-value warning">2 Warnings</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="last-updated">
+                        <span class="material-icons">update</span>
+                        <span>Last updated: <span id="lastUpdateTime">Just now</span></span>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-tab="dashboard">
+                <span class="material-icons">dashboard</span>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-item" data-tab="schedule">
+                <span class="material-icons">schedule</span>
+                <span>Schedule</span>
+            </button>
+            <button class="nav-item" data-tab="stats">
+                <span class="material-icons">analytics</span>
+                <span>Stats</span>
+            </button>
+            <button class="nav-item" data-tab="settings">
+                <span class="material-icons">settings</span>
+                <span>Settings</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1337 @@
+/* ============================================
+   Water Management IoT Dashboard - Mobile First
+   Designed with Flutter-like Flexbox patterns
+   ============================================ */
+
+/* ============================================
+   CSS Variables - Light & Dark Mode
+   ============================================ */
+:root {
+    /* Light Mode Colors (default) */
+    --primary-blue: #2196F3;
+    --primary-dark: #1976D2;
+    --primary-light: #BBDEFB;
+    
+    --secondary-teal: #00BCD4;
+    --secondary-green: #4CAF50;
+    --secondary-orange: #FF9800;
+    
+    --success: #4CAF50;
+    --warning: #FF9800;
+    --error: #F44336;
+    --info: #2196F3;
+    
+    /* Light Mode Backgrounds */
+    --bg-primary: #F5F7FA;
+    --bg-secondary: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-input: #F9FAFB;
+    
+    /* Light Mode Text */
+    --text-primary: #1A1A2E;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
+    --text-inverse: #FFFFFF;
+    
+    /* Light Mode Borders */
+    --border-color: #E5E7EB;
+    --border-focus: #2196F3;
+    
+    /* Shadows - Direct Flutter BoxShadow mapping */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+    
+    /* Spacing */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-md: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.5rem;
+    --font-size-2xl: 2rem;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+    --bg-primary: #0F172A;
+    --bg-secondary: #1E293B;
+    --bg-card: #334155;
+    --bg-input: #475569;
+    
+    --text-primary: #F1F5F9;
+    --text-secondary: #CBD5E1;
+    --text-muted: #64748B;
+    
+    --border-color: #475569;
+    --border-focus: #60A5FA;
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+    
+    --primary-light: #1E3A5F;
+}
+
+/* ============================================
+   Base Reset & Typography
+   ============================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.5;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================
+   App Container
+   ============================================ */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   Header
+   ============================================ */
+.app-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md);
+    background: var(--bg-secondary);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: background-color 0.3s ease;
+}
+
+.header-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.header-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.app-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--bg-input);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+    background: var(--primary-light);
+}
+
+.theme-icon {
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    transition: color 0.3s;
+}
+
+[data-theme="dark"] .theme-icon {
+    color: var(--warning);
+}
+
+.menu-icon, .notification-icon {
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--space-xs);
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+}
+
+.menu-icon:hover, .notification-icon:hover {
+    background: var(--bg-input);
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+    background: var(--text-muted);
+}
+
+.status-indicator.online {
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ============================================
+   Main Content
+   ============================================ */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    padding: var(--space-md);
+    padding-bottom: calc(var(--space-xl) * 3);
+    flex: 1;
+    transition: background-color 0.3s ease;
+}
+
+.section-title {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-sm);
+}
+
+/* ============================================
+   Card Widget
+   ============================================ */
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-md);
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+}
+
+.card:active {
+    box-shadow: var(--shadow-sm);
+}
+
+/* Card Action Button */
+.card-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    cursor: pointer;
+    margin-left: auto;
+    transition: background 0.2s;
+}
+
+.card-action-btn:hover {
+    background: var(--bg-input);
+}
+
+.card-action-btn .material-icons {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+}
+
+/* ============================================
+   Water Level Section
+   ============================================ */
+.water-level-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.card-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.card-header .water-drop {
+    color: var(--primary-blue);
+    font-size: var(--font-size-xl);
+}
+
+.card-header h2 {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+}
+
+.water-tank-visual {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: var(--space-md) 0;
+}
+
+.tank-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    height: 12rem;
+    width: 100%;
+    max-width: 10rem;
+    background: linear-gradient(180deg, #E3F2FD 0%, #BBDEFB 100%);
+    border: 3px solid var(--primary-blue);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: relative;
+}
+
+[data-theme="dark"] .tank-container {
+    background: linear-gradient(180deg, #1E3A5F 0%, #0F2744 100%);
+    border-color: #60A5FA;
+}
+
+.water-fill {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(180deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
+    transition: height 0.5s ease;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.water-percentage {
+    color: white;
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.tank-markers {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--space-xs);
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    margin-left: var(--space-sm);
+}
+
+.water-stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.stat-label {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Quick Actions
+   ============================================ */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    min-height: 3rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.action-btn .material-icons {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.action-btn span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.primary-action {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.primary-action:active {
+    background: var(--primary-dark);
+    transform: scale(0.98);
+}
+
+.secondary-action {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.secondary-action:active {
+    background: var(--bg-input);
+    transform: scale(0.98);
+}
+
+.warning-action {
+    background: var(--error);
+    color: white;
+}
+
+.warning-action:active {
+    background: #D32F2F;
+    transform: scale(0.98);
+}
+
+/* ============================================
+   Pump Controls
+   ============================================ */
+.pumps-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.pump-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pump-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.pump-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-full);
+}
+
+.pump-icon-wrapper.active {
+    background: rgba(76, 175, 80, 0.15);
+}
+
+.pump-icon-wrapper.inactive {
+    background: rgba(156, 163, 175, 0.15);
+}
+
+.pump-icon-wrapper.maintenance {
+    background: rgba(255, 152, 0, 0.15);
+}
+
+.pump-icon {
+    font-size: 1.5rem;
+}
+
+.pump-icon-wrapper.active .pump-icon {
+    color: var(--success);
+}
+
+.pump-icon-wrapper.inactive .pump-icon {
+    color: var(--text-muted);
+}
+
+.pump-icon-wrapper.maintenance .pump-icon {
+    color: var(--warning);
+}
+
+.pump-details h3 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pump-status {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+}
+
+.pump-status.active {
+    color: var(--success);
+}
+
+.pump-status.inactive {
+    color: var(--text-muted);
+}
+
+.pump-status.maintenance {
+    color: var(--warning);
+}
+
+.pump-info-text {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 3.5rem;
+    height: 2rem;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--text-muted);
+    transition: 0.3s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 1.5rem;
+    width: 1.5rem;
+    left: 0.25rem;
+    bottom: 0.25rem;
+    background-color: white;
+    transition: 0.3s;
+    box-shadow: var(--shadow-sm);
+}
+
+input:checked + .slider {
+    background-color: var(--success);
+}
+
+input:checked + .slider:before {
+    transform: translateX(1.5rem);
+}
+
+input:disabled + .slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.slider.round {
+    border-radius: var(--radius-full);
+}
+
+.slider.round:before {
+    border-radius: var(--radius-full);
+}
+
+/* ============================================
+   Valve Controls - Fixed Stepped Dial
+   ============================================ */
+.valves-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.valve-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+}
+
+.valve-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+}
+
+.valve-icon {
+    color: var(--primary-blue);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.valve-icon.warning-icon {
+    color: var(--warning);
+}
+
+.valve-header h3 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.valve-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px var(--space-xs);
+    border-radius: var(--radius-full);
+    font-size: 0.65rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.valve-status-badge.open {
+    background: rgba(76, 175, 80, 0.15);
+    color: var(--success);
+}
+
+.valve-status-badge.closed {
+    background: rgba(244, 67, 54, 0.15);
+    color: var(--error);
+}
+
+/* Stepped Dial Container */
+.valve-dial-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.stepped-dial {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 2px;
+    width: 100%;
+}
+
+.dial-step {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xs) 2px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 0;
+    min-height: 1.75rem;
+}
+
+.dial-step:hover {
+    border-color: var(--primary-blue);
+    background: var(--primary-light);
+}
+
+.dial-step.active {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: white;
+}
+
+[data-theme="dark"] .dial-step.active {
+    background: #60A5FA;
+    border-color: #60A5FA;
+}
+
+/* Percentage Input */
+.valve-percentage-display {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.valve-input {
+    width: 60px;
+    padding: var(--space-xs);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-align: center;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.valve-input::-webkit-outer-spin-button,
+.valve-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.valve-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+.percentage-symbol {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Valve Toggle Button */
+.valve-toggle-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    min-height: 1.75rem;
+}
+
+.valve-toggle-btn .material-icons {
+    font-size: 1rem;
+}
+
+.valve-toggle-btn.open {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--error);
+}
+
+.valve-toggle-btn.open:hover {
+    background: rgba(244, 67, 54, 0.2);
+}
+
+.valve-toggle-btn.closed {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--success);
+}
+
+.valve-toggle-btn.closed:hover {
+    background: rgba(76, 175, 80, 0.2);
+}
+
+/* ============================================
+   Flow Monitor
+   ============================================ */
+.flow-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.flow-display {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.flow-rate {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--space-xs);
+}
+
+.flow-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+.flow-unit {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.flow-stats {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-lg);
+}
+
+.flow-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.flow-stat-label {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+}
+
+.flow-stat-value {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.flow-icon .material-icons {
+    font-size: 2.5rem;
+    color: var(--primary-light);
+}
+
+.flow-icon .material-icons.flowing {
+    animation: flow 1.5s ease-in-out infinite;
+}
+
+@keyframes flow {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(-3px); opacity: 0.7; }
+}
+
+.flow-chart {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 5rem;
+    padding: 0 var(--space-sm);
+    gap: var(--space-xs);
+}
+
+.flow-bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--primary-blue) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    min-height: 4px;
+    transition: height 0.3s ease;
+}
+
+.flow-labels {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    padding: 0 var(--space-xs);
+}
+
+/* ============================================
+   Schedule Section
+   ============================================ */
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.schedule-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+}
+
+.schedule-card.completed {
+    opacity: 0.7;
+}
+
+.schedule-card.active {
+    border-left: 3px solid var(--success);
+}
+
+.schedule-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 3rem;
+}
+
+.schedule-time .time {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.schedule-time .period {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+}
+
+.schedule-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.schedule-details h3 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.schedule-details p {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+}
+
+.schedule-card.completed .schedule-details p {
+    color: var(--success);
+}
+
+.schedule-card.active .schedule-details p {
+    color: var(--success);
+    font-weight: 500;
+}
+
+.schedule-card.pending .schedule-details p {
+    color: var(--text-muted);
+}
+
+.schedule-duration {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+}
+
+.check-icon {
+    color: var(--success);
+}
+
+.play-icon {
+    color: var(--success);
+    animation: pulse 1.5s infinite;
+}
+
+.schedule-icon {
+    color: var(--text-muted);
+}
+
+/* Add Schedule Button */
+.add-schedule-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    width: 100%;
+    padding: var(--space-md);
+    margin-top: var(--space-sm);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-schedule-btn:hover {
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+    background: var(--primary-light);
+}
+
+/* ============================================
+   Alerts Section
+   ============================================ */
+.alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.alert-card {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    position: relative;
+}
+
+.alert-card.warning {
+    background: rgba(255, 152, 0, 0.08);
+    border-left: 3px solid var(--warning);
+}
+
+.alert-card.info {
+    background: rgba(33, 150, 243, 0.08);
+    border-left: 3px solid var(--info);
+}
+
+.alert-icon {
+    font-size: var(--font-size-xl);
+}
+
+.alert-card.warning .alert-icon {
+    color: var(--warning);
+}
+
+.alert-card.info .alert-icon {
+    color: var(--info);
+}
+
+.alert-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.alert-content h3 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.alert-content p {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+}
+
+.alert-time {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+}
+
+.alert-dismiss {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.alert-dismiss:hover {
+    background: var(--bg-input);
+}
+
+.alert-dismiss .material-icons {
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+/* ============================================
+   System Status Section
+   ============================================ */
+.system-status-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+}
+
+.status-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+}
+
+.status-icon {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+}
+
+.status-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.status-label {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+}
+
+.status-value {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.status-value.connected {
+    color: var(--success);
+}
+
+.status-value.warning {
+    color: var(--warning);
+}
+
+.last-updated {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--border-color);
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+}
+
+.last-updated .material-icons {
+    font-size: 1rem;
+}
+
+/* ============================================
+   Bottom Navigation
+   ============================================ */
+.bottom-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-secondary);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    padding: var(--space-sm) 0;
+    padding-bottom: env(safe-area-inset-bottom, var(--space-sm));
+    z-index: 100;
+    transition: background-color 0.3s ease;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: var(--space-xs) var(--space-md);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-family);
+}
+
+.nav-item .material-icons {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.nav-item span:last-child {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.nav-item.active .material-icons,
+.nav-item.active span:last-child {
+    color: var(--primary-blue);
+}
+
+.nav-item:active {
+    transform: scale(0.95);
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (min-width: 48rem) {
+    .main-content {
+        max-width: 45rem;
+        margin: 0 auto;
+        padding: var(--space-xl);
+    }
+    
+    .actions-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-md);
+    }
+    
+    .action-btn {
+        flex-direction: column;
+        padding: var(--space-md);
+        min-height: 4rem;
+    }
+    
+    .action-btn .material-icons {
+        font-size: 1.5rem;
+    }
+    
+    .valves-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+    }
+    
+    .status-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 64rem) {
+    .main-content {
+        max-width: 56rem;
+    }
+    
+    .app-header {
+        padding: var(--space-lg) var(--space-xl);
+    }
+    
+    .app-title {
+        font-size: var(--font-size-xl);
+    }
+    
+    .valves-list {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+.action-btn:focus-visible,
+.nav-item:focus-visible,
+.switch input:focus-visible + .slider,
+.valve-input:focus-visible,
+.dial-step:focus-visible {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.water-level-section,
+.quick-actions-section,
+.pump-controls-section,
+.valve-controls-section,
+.flow-monitor-section,
+.schedule-section,
+.alerts-section,
+.system-status-section {
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+.quick-actions-section { animation-delay: 0.1s; }
+.pump-controls-section { animation-delay: 0.15s; }
+.valve-controls-section { animation-delay: 0.2s; }
+.flow-monitor-section { animation-delay: 0.25s; }
+.schedule-section { animation-delay: 0.3s; }
+.alerts-section { animation-delay: 0.35s; }
+.system-status-section { animation-delay: 0.4s; }
