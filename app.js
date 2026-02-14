@@ -1,6 +1,7 @@
 /**
  * Water Management IoT Dashboard - Interactive JavaScript
  * Mobile-first approach with Flutter-like widget patterns
+ * Supports multiple water tanks with add functionality
  */
 
 (function() {
@@ -11,8 +12,28 @@
     // ============================================
     const appState = {
         theme: 'system', // 'light', 'dark', or 'system'
-        waterLevel: 65,
         isAutoMode: true,
+        tanks: [
+            { 
+                id: 1, 
+                name: 'Main Tank', 
+                level: 65, 
+                capacity: 1000, 
+                icon: 'water_drop',
+                filling: false,
+                draining: false
+            },
+            { 
+                id: 2, 
+                name: 'Underground', 
+                level: 40, 
+                capacity: 5000, 
+                icon: 'underground',
+                filling: false,
+                draining: false
+            }
+        ],
+        nextTankId: 3,
         pumps: [
             { id: 1, name: 'Main Pump', status: 'active', enabled: true, flow: 12.5 },
             { id: 2, name: 'Backup Pump', status: 'inactive', enabled: false, flow: 0 },
@@ -29,7 +50,7 @@
         flowAvg: 10.3,
         lastUpdate: new Date(),
         alerts: [
-            { id: 1, type: 'warning', title: 'Low Water Level', message: 'Tank at 65% - Consider filling soon', time: '10 min ago', dismissed: false },
+            { id: 1, type: 'warning', title: 'Low Water Level', message: 'Main Tank at 65% - Consider filling soon', time: '10 min ago', dismissed: false },
             { id: 2, type: 'info', title: 'Maintenance Due', message: 'Booster pump service in 3 days', time: '2 hours ago', dismissed: false }
         ]
     };
@@ -128,6 +149,221 @@
         }, 3000);
     }
 
+    // ============================================
+    // Tank Management
+    // ============================================
+    function renderTanks() {
+        const tanksGrid = document.getElementById('tanksGrid');
+        if (!tanksGrid) return;
+        
+        // Clear existing tanks (except the add card)
+        const existingTanks = tanksGrid.querySelectorAll('.tank-card');
+        existingTanks.forEach(tank => tank.remove());
+        
+        // Render each tank
+        appState.tanks.forEach(tank => {
+            const tankCard = createTankCard(tank);
+            tanksGrid.insertBefore(tankCard, document.getElementById('addTankCard'));
+        });
+    }
+
+    function createTankCard(tank) {
+        const card = document.createElement('div');
+        card.className = 'card tank-card';
+        card.id = `tank${tank.id}`;
+        
+        const level = Math.round((tank.level / 100) * tank.capacity);
+        const estFullTime = calculateEstFullTime(tank);
+        
+        card.innerHTML = `
+            <div class="tank-card-header">
+                <div class="tank-info">
+                    <span class="material-icons tank-icon">${tank.icon}</span>
+                    <h3>${tank.name}</h3>
+                </div>
+                <button class="tank-settings-btn" aria-label="Tank Settings" data-tank-id="${tank.id}">
+                    <span class="material-icons">more_vert</span>
+                </button>
+            </div>
+            
+            <div class="tank-visual">
+                <div class="tank-container">
+                    <div class="water-fill" id="tank${tank.id}Fill" style="height: ${tank.level}%;">
+                        <span class="water-percentage" id="tank${tank.id}Percentage">${tank.level}%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tank-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Level</span>
+                    <span class="stat-value" id="tank${tank.id}Level">${level} L</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Capacity</span>
+                    <span class="stat-value">${tank.capacity} L</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Est. Full</span>
+                    <span class="stat-value" id="tank${tank.id}EstFull">${estFullTime}</span>
+                </div>
+            </div>
+            
+            <div class="tank-actions">
+                <button class="tank-action-btn fill" data-tank-id="${tank.id}" aria-label="Fill Tank">
+                    <span class="material-icons">water</span>
+                </button>
+                <button class="tank-action-btn empty" data-tank-id="${tank.id}" aria-label="Empty Tank">
+                    <span class="material-icons">remove_circle_outline</span>
+                </button>
+            </div>
+        `;
+        
+        return card;
+    }
+
+    function calculateEstFullTime(tank) {
+        if (tank.level >= 100) return 'Full';
+        if (tank.level < 100 && tank.filling) {
+            const remaining = 100 - tank.level;
+            const minutes = Math.round(remaining / 1.5);
+            return `~${minutes} min`;
+        }
+        if (tank.level < 100 && tank.draining) {
+            const minutes = Math.round(tank.level / 2);
+            return `~${minutes} min`;
+        }
+        return '--';
+    }
+
+    function updateTankLevel(tankId, delta) {
+        const tank = appState.tanks.find(t => t.id === tankId);
+        if (!tank) return;
+        
+        tank.level = Math.max(0, Math.min(100, tank.level + delta));
+        
+        // Update DOM elements
+        const fill = document.getElementById(`tank${tankId}Fill`);
+        const percentage = document.getElementById(`tank${tankId}Percentage`);
+        const level = document.getElementById(`tank${tankId}Level`);
+        const estFull = document.getElementById(`tank${tankId}EstFull`);
+        
+        if (fill) fill.style.height = `${tank.level}%`;
+        if (percentage) percentage.textContent = `${Math.round(tank.level)}%`;
+        if (level) level.textContent = `${Math.round((tank.level / 100) * tank.capacity)} L`;
+        if (estFull) estFull.textContent = calculateEstFullTime(tank);
+        
+        // Show warning if low
+        if (tank.level < 30 && !appState.alerts[0].dismissed) {
+            showToast(`Warning: ${tank.name} is low!`, 'warning');
+        }
+    }
+
+    function fillTank(tankId) {
+        const tank = appState.tanks.find(t => t.id === tankId);
+        if (!tank) return;
+        
+        if (tank.level >= 100) {
+            showToast(`${tank.name} is already full!`, 'info');
+            return;
+        }
+        
+        tank.filling = !tank.filling;
+        
+        const fillBtn = document.querySelector(`.tank-action-btn.fill[data-tank-id="${tankId}"]`);
+        if (fillBtn) {
+            fillBtn.style.background = tank.filling ? 'var(--primary-blue)' : '';
+            fillBtn.style.color = tank.filling ? 'white' : '';
+        }
+        
+        showToast(tank.filling ? `Filling ${tank.name}...` : `Stopped filling ${tank.name}`, 
+                  tank.filling ? 'success' : 'info');
+        
+        if (!tank.draining) {
+            updateTankLevel(tankId, 0); // Will trigger the interval
+        }
+    }
+
+    function emptyTank(tankId) {
+        const tank = appState.tanks.find(t => t.id === tankId);
+        if (!tank) return;
+        
+        if (tank.level <= 0) {
+            showToast(`${tank.name} is already empty!`, 'info');
+            return;
+        }
+        
+        tank.draining = !tank.draining;
+        
+        const emptyBtn = document.querySelector(`.tank-action-btn.empty[data-tank-id="${tankId}"]`);
+        if (emptyBtn) {
+            emptyBtn.style.background = tank.draining ? 'var(--error)' : '';
+            emptyBtn.style.color = tank.draining ? 'white' : '';
+        }
+        
+        showToast(tank.draining ? `Draining ${tank.name}...` : `Stopped draining ${tank.name}`, 
+                  tank.draining ? 'warning' : 'info');
+    }
+
+    function addNewTank(name, capacity) {
+        const newTank = {
+            id: appState.nextTankId++,
+            name: name || `Tank ${appState.nextTankId - 1}`,
+            level: 0,
+            capacity: capacity || 1000,
+            icon: 'water_drop',
+            filling: false,
+            draining: false
+        };
+        
+        appState.tanks.push(newTank);
+        
+        // Re-render tanks
+        renderTanks();
+        
+        // Re-attach event listeners
+        attachTankEventListeners();
+        
+        showToast(`Added ${newTank.name} (${newTank.capacity}L)`, 'success');
+        
+        // Hide add form
+        const addTankCard = document.getElementById('addTankCard');
+        if (addTankCard) {
+            addTankCard.style.display = 'none';
+        }
+        
+        // Update flow simulation
+        updateFlowRate();
+    }
+
+    function attachTankEventListeners() {
+        // Fill buttons
+        document.querySelectorAll('.tank-action-btn.fill').forEach(btn => {
+            btn.onclick = () => {
+                const tankId = parseInt(btn.dataset.tankId);
+                fillTank(tankId);
+            };
+        });
+        
+        // Empty buttons
+        document.querySelectorAll('.tank-action-btn.empty').forEach(btn => {
+            btn.onclick = () => {
+                const tankId = parseInt(btn.dataset.tankId);
+                emptyTank(tankId);
+            };
+        });
+        
+        // Settings buttons
+        document.querySelectorAll('.tank-settings-btn').forEach(btn => {
+            btn.onclick = () => {
+                showToast('Tank settings coming soon!', 'info');
+            };
+        });
+    }
+
+    // ============================================
+    // Pump Management
+    // ============================================
     function updatePumpState(pumpIndex, enabled) {
         appState.pumps[pumpIndex].enabled = enabled;
         appState.pumps[pumpIndex].status = enabled ? 'active' : 'inactive';
@@ -150,6 +386,9 @@
         updateFlowRate();
     }
 
+    // ============================================
+    // Valve Management
+    // ============================================
     function updateValveState(valveId, percentage, open) {
         const valve = appState.valves.find(v => v.id === valveId);
         if (valve) {
@@ -221,33 +460,9 @@
         }
     }
 
-    function simulateWaterLevelChange(delta) {
-        appState.waterLevel = Math.max(0, Math.min(100, appState.waterLevel + delta));
-        
-        const waterFill = document.getElementById('waterFill');
-        const waterPercentage = document.getElementById('waterPercentage');
-        const currentLevel = document.getElementById('currentLevel');
-        
-        if (waterFill) waterFill.style.height = `${appState.waterLevel}%`;
-        if (waterPercentage) waterPercentage.textContent = `${Math.round(appState.waterLevel)}%`;
-        if (currentLevel) currentLevel.textContent = `${Math.round(appState.waterLevel * 10)} L`;
-        
-        // Update estimated fill time
-        const estFullTime = document.getElementById('estFullTime');
-        if (appState.waterLevel < 100 && appState.pumps[0].enabled) {
-            const remaining = 100 - appState.waterLevel;
-            const minutes = Math.round(remaining / 1.5); // ~1.5% per minute
-            if (estFullTime) estFullTime.textContent = `~${minutes} min`;
-        } else if (estFullTime) {
-            estFullTime.textContent = appState.waterLevel >= 100 ? 'Full' : '--';
-        }
-        
-        // Show warning if low
-        if (appState.waterLevel < 30 && !appState.alerts[0].dismissed) {
-            showToast('Warning: Low water level!', 'warning');
-        }
-    }
-
+    // ============================================
+    // Flow Rate Management
+    // ============================================
     function updateFlowRate() {
         let totalFlow = 0;
         
@@ -258,11 +473,11 @@
         });
         
         // Adjust for open valves
-        appState.valves.forEach(valve => {
-            if (valve.open && valve.percentage > 0) {
-                totalFlow *= (valve.percentage / 100);
-            }
-        });
+        const openValves = appState.valves.filter(v => v.open && v.percentage > 0);
+        if (openValves.length > 0) {
+            const avgOpen = openValves.reduce((sum, v) => sum + v.percentage, 0) / openValves.length;
+            totalFlow *= (avgOpen / 100);
+        }
         
         appState.flowRate = Math.max(0, totalFlow + (Math.random() - 0.5) * 2);
         
@@ -277,22 +492,9 @@
         }
     }
 
-    function updateLastUpdateTime() {
-        const lastUpdateTime = document.getElementById('lastUpdateTime');
-        if (lastUpdateTime) {
-            const now = new Date();
-            const diff = Math.floor((now - appState.lastUpdate) / 1000);
-            
-            if (diff < 60) {
-                lastUpdateTime.textContent = 'Just now';
-            } else if (diff < 3600) {
-                lastUpdateTime.textContent = `${Math.floor(diff / 60)} min ago`;
-            } else {
-                lastUpdateTime.textContent = `${Math.floor(diff / 3600)} hours ago`;
-            }
-        }
-    }
-
+    // ============================================
+    // Alert Management
+    // ============================================
     function dismissAlert(alertId) {
         const alert = appState.alerts.find(a => a.id === alertId);
         if (alert) {
@@ -307,6 +509,83 @@
     }
 
     // ============================================
+    // Quick Actions
+    // ============================================
+    function fillAllTanks() {
+        appState.tanks.forEach(tank => {
+            if (tank.level < 100) {
+                tank.filling = true;
+                const fillBtn = document.querySelector(`.tank-action-btn.fill[data-tank-id="${tank.id}"]`);
+                if (fillBtn) {
+                    fillBtn.style.background = 'var(--primary-blue)';
+                    fillBtn.style.color = 'white';
+                }
+            }
+        });
+        showToast('Filling all tanks...', 'success');
+    }
+
+    function emptyAllTanks() {
+        appState.tanks.forEach(tank => {
+            if (tank.level > 0) {
+                tank.draining = true;
+                const emptyBtn = document.querySelector(`.tank-action-btn.empty[data-tank-id="${tank.id}"]`);
+                if (emptyBtn) {
+                    emptyBtn.style.background = 'var(--error)';
+                    emptyBtn.style.color = 'white';
+                }
+            }
+        });
+        showToast('Emptying all tanks...', 'warning');
+    }
+
+    function toggleAutoMode() {
+        appState.isAutoMode = !appState.isAutoMode;
+        const icon = document.getElementById('autoModeIcon');
+        if (icon) {
+            icon.textContent = appState.isAutoMode ? 'auto_awesome' : 'manual_mode';
+        }
+        showToast(`Auto mode ${appState.isAutoMode ? 'enabled' : 'disabled'}`, 
+                  appState.isAutoMode ? 'success' : 'warning');
+    }
+
+    function emergencyStop() {
+        if (confirm('⚠️ Emergency Stop!\n\nThis will stop all pumps and close all valves. Continue?')) {
+            // Stop all pumps
+            appState.pumps.forEach((pump, index) => {
+                if (pump.id !== 3) {
+                    const toggle = document.getElementById(`pump${index + 1}Toggle`);
+                    if (toggle) toggle.checked = false;
+                    updatePumpState(index, false);
+                }
+            });
+            
+            // Stop all tanks filling/draining
+            appState.tanks.forEach(tank => {
+                tank.filling = false;
+                tank.draining = false;
+            });
+            
+            // Update all tank buttons
+            document.querySelectorAll('.tank-action-btn.fill').forEach(btn => {
+                btn.style.background = '';
+                btn.style.color = '';
+            });
+            document.querySelectorAll('.tank-action-btn.empty').forEach(btn => {
+                btn.style.background = '';
+                btn.style.color = '';
+            });
+            
+            // Close all valves
+            appState.valves.forEach(valve => {
+                updateValveState(valve.id, 0, false);
+            });
+            
+            showToast('EMERGENCY STOP ACTIVATED', 'error');
+        }
+    }
+
+    // ============================================
     // Event Handlers
     // ============================================
     function initEventHandlers() {
@@ -317,53 +596,65 @@
         }
         
         // Quick Actions
-        const fillTankBtn = document.getElementById('fillTankBtn');
-        if (fillTankBtn) {
-            fillTankBtn.addEventListener('click', () => {
-                simulateWaterLevelChange(10);
-                showToast('Filling tank...', 'info');
-            });
+        const fillAllBtn = document.getElementById('fillAllBtn');
+        if (fillAllBtn) {
+            fillAllBtn.addEventListener('click', fillAllTanks);
         }
         
-        const emptyTankBtn = document.getElementById('emptyTankBtn');
-        if (emptyTankBtn) {
-            emptyTankBtn.addEventListener('click', () => {
-                simulateWaterLevelChange(-10);
-                showToast('Draining tank...', 'info');
-            });
+        const emptyAllBtn = document.getElementById('emptyAllBtn');
+        if (emptyAllBtn) {
+            emptyAllBtn.addEventListener('click', emptyAllTanks);
         }
         
         const autoModeBtn = document.getElementById('autoModeBtn');
         if (autoModeBtn) {
-            autoModeBtn.addEventListener('click', () => {
-                appState.isAutoMode = !appState.isAutoMode;
-                const icon = document.getElementById('autoModeIcon');
-                icon.textContent = appState.isAutoMode ? 'auto_awesome' : 'manual_mode';
-                showToast(`Auto mode ${appState.isAutoMode ? 'enabled' : 'disabled'}`, 
-                          appState.isAutoMode ? 'success' : 'warning');
-            });
+            autoModeBtn.addEventListener('click', toggleAutoMode);
         }
         
         const emergencyBtn = document.getElementById('emergencyBtn');
         if (emergencyBtn) {
-            emergencyBtn.addEventListener('click', () => {
-                if (confirm('⚠️ Emergency Stop!\n\nThis will stop all pumps and close all valves. Continue?')) {
-                    // Stop all pumps
-                    appState.pumps.forEach((pump, index) => {
-                        if (pump.id !== 3) {
-                            const toggle = document.getElementById(`pump${index + 1}Toggle`);
-                            if (toggle) toggle.checked = false;
-                            updatePumpState(index, false);
-                        }
-                    });
-                    
-                    // Close all valves
-                    appState.valves.forEach(valve => {
-                        updateValveState(valve.id, 0, false);
-                    });
-                    
-                    showToast('EMERGENCY STOP ACTIVATED', 'error');
+            emergencyBtn.addEventListener('click', emergencyStop);
+        }
+        
+        // Tank event listeners
+        attachTankEventListeners();
+        
+        // Add Tank Button
+        const addTankBtn = document.getElementById('addTankBtn');
+        const addTankCard = document.getElementById('addTankCard');
+        if (addTankBtn && addTankCard) {
+            addTankBtn.addEventListener('click', () => {
+                addTankCard.style.display = addTankCard.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+        
+        // Cancel Add Tank
+        const cancelAddTank = document.getElementById('cancelAddTank');
+        if (cancelAddTank) {
+            cancelAddTank.addEventListener('click', () => {
+                const addTankCard = document.getElementById('addTankCard');
+                if (addTankCard) {
+                    addTankCard.style.display = 'none';
                 }
+                // Clear inputs
+                document.getElementById('newTankName').value = '';
+                document.getElementById('newTankCapacity').value = '';
+            });
+        }
+        
+        // Confirm Add Tank
+        const confirmAddTank = document.getElementById('confirmAddTank');
+        if (confirmAddTank) {
+            confirmAddTank.addEventListener('click', () => {
+                const name = document.getElementById('newTankName').value.trim();
+                const capacity = parseInt(document.getElementById('newTankCapacity').value) || 1000;
+                
+                if (capacity < 100 || capacity > 100000) {
+                    showToast('Capacity must be between 100 and 100,000 liters', 'warning');
+                    return;
+                }
+                
+                addNewTank(name, capacity);
             });
         }
         
@@ -450,14 +741,6 @@
                 showToast(`Switched to ${tabNames[tab] || 'Dashboard'}`, 'info');
             });
         });
-        
-        // Tank Settings Button
-        const tankSettingsBtn = document.getElementById('tankSettingsBtn');
-        if (tankSettingsBtn) {
-            tankSettingsBtn.addEventListener('click', () => {
-                showToast('Tank settings coming soon!', 'info');
-            });
-        }
     }
 
     // ============================================
@@ -468,20 +751,59 @@
         setInterval(updateFlowRate, 5000);
         
         // Update last update time every 30 seconds
+        const updateLastUpdateTime = () => {
+            const lastUpdateTime = document.getElementById('lastUpdateTime');
+            if (lastUpdateTime) {
+                const now = new Date();
+                const diff = Math.floor((now - appState.lastUpdate) / 1000);
+                
+                if (diff < 60) {
+                    lastUpdateTime.textContent = 'Just now';
+                } else if (diff < 3600) {
+                    lastUpdateTime.textContent = `${Math.floor(diff / 60)} min ago`;
+                } else {
+                    lastUpdateTime.textContent = `${Math.floor(diff / 3600)} hours ago`;
+                }
+            }
+        };
         setInterval(updateLastUpdateTime, 30000);
         
-        // Simulate water level changes based on flow
+        // Simulate water level changes for all tanks
         setInterval(() => {
             const mainPump = appState.pumps[0];
-            const mainValve = appState.valves.find(v => v.id === 'main');
             
-            if (mainPump.enabled && mainValve.open && mainValve.percentage > 0) {
-                // Water flowing in
-                simulateWaterLevelChange(0.5);
-            } else {
-                // Small passive drain
-                simulateWaterLevelChange(-0.1);
-            }
+            appState.tanks.forEach(tank => {
+                if (tank.filling && tank.level < 100 && mainPump.enabled) {
+                    // Water filling in
+                    updateTankLevel(tank.id, 0.5);
+                } else if (tank.draining && tank.level > 0) {
+                    // Water draining
+                    updateTankLevel(tank.id, -0.3);
+                } else if (!tank.filling && !tank.draining) {
+                    // Small passive drain
+                    updateTankLevel(tank.id, -0.05);
+                }
+                
+                // Stop filling/draining when full/empty
+                if (tank.filling && tank.level >= 100) {
+                    tank.filling = false;
+                    const fillBtn = document.querySelector(`.tank-action-btn.fill[data-tank-id="${tank.id}"]`);
+                    if (fillBtn) {
+                        fillBtn.style.background = '';
+                        fillBtn.style.color = '';
+                    }
+                    showToast(`${tank.name} is full!`, 'success');
+                }
+                if (tank.draining && tank.level <= 0) {
+                    tank.draining = false;
+                    const emptyBtn = document.querySelector(`.tank-action-btn.empty[data-tank-id="${tank.id}"]`);
+                    if (emptyBtn) {
+                        emptyBtn.style.background = '';
+                        emptyBtn.style.color = '';
+                    }
+                    showToast(`${tank.name} is empty!`, 'info');
+                }
+            });
         }, 3000);
     }
 
@@ -491,6 +813,7 @@
     function init() {
         console.log('🌊 Water Management IoT Dashboard Initialized');
         console.log('📱 Mobile-first design with Flutter-like patterns');
+        console.log('💧 Multiple tank support enabled');
         
         // Add fadeOutDown animation
         const style = document.createElement('style');
@@ -522,6 +845,9 @@
         // Initialize theme
         initTheme();
         
+        // Initialize tanks
+        renderTanks();
+        
         // Initialize event handlers
         initEventHandlers();
         
@@ -530,7 +856,7 @@
         
         // Show welcome toast
         setTimeout(() => {
-            showToast('Dashboard connected ✓', 'success');
+            showToast(`Connected - ${appState.tanks.length} tanks`, 'success');
         }, 1000);
     }
 

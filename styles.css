@@ -236,9 +236,47 @@ body {
     margin-bottom: var(--space-sm);
 }
 
+.section-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-sm);
+}
+
+.add-tank-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--primary-blue);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-tank-btn:hover {
+    background: var(--primary-dark);
+    transform: scale(1.1);
+}
+
+.add-tank-btn .material-icons {
+    font-size: 1.25rem;
+}
+
 /* ============================================
-   Card Widget
+   Water Tanks Grid - Responsive
    ============================================ */
+.tanks-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+}
+
+/* Card Widget */
 .card {
     background: var(--bg-card);
     border-radius: var(--radius-md);
@@ -251,70 +289,75 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-/* Card Action Button */
-.card-action-btn {
+/* ============================================
+   Water Tank Card
+   ============================================ */
+.tank-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.tank-card-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tank-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.tank-icon {
+    color: var(--primary-blue);
+    font-size: 1.25rem;
+}
+
+.tank-info h3 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.tank-settings-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border: none;
     border-radius: var(--radius-sm);
     background: transparent;
     cursor: pointer;
-    margin-left: auto;
     transition: background 0.2s;
 }
 
-.card-action-btn:hover {
+.tank-settings-btn:hover {
     background: var(--bg-input);
 }
 
-.card-action-btn .material-icons {
-    font-size: 1.25rem;
+.tank-settings-btn .material-icons {
+    font-size: 1.125rem;
     color: var(--text-muted);
 }
 
-/* ============================================
-   Water Level Section
-   ============================================ */
-.water-level-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-}
-
-.card-header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--space-sm);
-}
-
-.card-header .water-drop {
-    color: var(--primary-blue);
-    font-size: var(--font-size-xl);
-}
-
-.card-header h2 {
-    font-size: var(--font-size-md);
-    font-weight: 600;
-}
-
-.water-tank-visual {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    padding: var(--space-md) 0;
+/* Tank Visual - Animated */
+.tank-visual {
+    padding: var(--space-sm) 0;
 }
 
 .tank-container {
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    height: 12rem;
+    height: 8rem;
     width: 100%;
-    max-width: 10rem;
+    max-width: 8rem;
+    margin: 0 auto;
     background: linear-gradient(180deg, #E3F2FD 0%, #BBDEFB 100%);
     border: 3px solid var(--primary-blue);
     border-radius: var(--radius-md);
@@ -327,17 +370,60 @@ body {
     border-color: #60A5FA;
 }
 
+/* Animated Water Fill */
 .water-fill {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     background: linear-gradient(180deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
-    transition: height 0.5s ease;
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
+    transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+/* Wave animation */
+.water-fill::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -50%;
+    width: 200%;
+    height: 20px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255,255,255,0.3) 50%, 
+        transparent 100%);
+    animation: wave 3s linear infinite;
+}
+
+@keyframes wave {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(50%); }
+}
+
+/* Bubbles animation */
+.water-fill::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,0.2) 2px, transparent 2px),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 3px, transparent 3px),
+        radial-gradient(circle at 40% 40%, rgba(255,255,255,0.1) 2px, transparent 2px),
+        radial-gradient(circle at 60% 70%, rgba(255,255,255,0.12) 2px, transparent 2px);
+    animation: bubbles 2s ease-in-out infinite;
+}
+
+@keyframes bubbles {
+    0%, 100% { transform: translateY(0); opacity: 0.8; }
+    50% { transform: translateY(-5px); opacity: 1; }
 }
 
 .water-percentage {
@@ -345,23 +431,20 @@ body {
     font-size: var(--font-size-lg);
     font-weight: 700;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    position: relative;
 }
 
 .tank-markers {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: var(--space-xs);
-    font-size: var(--font-size-xs);
-    color: var(--text-muted);
-    margin-left: var(--space-sm);
+    display: none;
 }
 
-.water-stats {
+/* Tank Stats */
+.tank-stats {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
-    padding-top: var(--space-md);
+    justify-content: space-between;
+    padding-top: var(--space-sm);
     border-top: 1px solid var(--border-color);
 }
 
@@ -369,7 +452,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-xs);
+    gap: 2px;
 }
 
 .stat-label {
@@ -380,9 +463,151 @@ body {
 }
 
 .stat-value {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-sm);
     font-weight: 600;
     color: var(--text-primary);
+}
+
+/* Tank Actions */
+.tank-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-md);
+    padding-top: var(--space-sm);
+}
+
+.tank-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tank-action-btn .material-icons {
+    font-size: 1.25rem;
+}
+
+.tank-action-btn.fill {
+    background: rgba(33, 150, 243, 0.15);
+    color: var(--primary-blue);
+}
+
+.tank-action-btn.fill:hover {
+    background: var(--primary-blue);
+    color: white;
+    transform: scale(1.1);
+}
+
+.tank-action-btn.empty {
+    background: rgba(244, 67, 54, 0.15);
+    color: var(--error);
+}
+
+.tank-action-btn.empty:hover {
+    background: var(--error);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* ============================================
+   Add Tank Card/Form
+   ============================================ */
+.add-tank-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-md);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.add-tank-form h3 {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-md);
+}
+
+.form-group label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-input {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+.form-actions {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
+.btn-cancel, .btn-add {
+    flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel {
+    background: var(--bg-input);
+    color: var(--text-secondary);
+}
+
+.btn-cancel:hover {
+    background: var(--border-color);
+}
+
+.btn-add {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.btn-add:hover {
+    background: var(--primary-dark);
 }
 
 /* ============================================
@@ -1226,8 +1451,14 @@ input:disabled + .slider {
 }
 
 /* ============================================
-   Responsive Design
+   Responsive Design - Multiple Tanks Grid
    ============================================ */
+@media (min-width: 36rem) {
+    .tanks-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (min-width: 48rem) {
     .main-content {
         max-width: 45rem;
@@ -1274,7 +1505,17 @@ input:disabled + .slider {
         font-size: var(--font-size-xl);
     }
     
+    .tanks-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
     .valves-list {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 80rem) {
+    .tanks-grid {
         grid-template-columns: repeat(4, 1fr);
     }
 }
@@ -1286,7 +1527,10 @@ input:disabled + .slider {
 .nav-item:focus-visible,
 .switch input:focus-visible + .slider,
 .valve-input:focus-visible,
-.dial-step:focus-visible {
+.dial-step:focus-visible,
+.add-tank-btn:focus-visible,
+.btn-add:focus-visible,
+.btn-cancel:focus-visible {
     outline: 2px solid var(--primary-blue);
     outline-offset: 2px;
 }
@@ -1317,7 +1561,7 @@ input:disabled + .slider {
     }
 }
 
-.water-level-section,
+.water-tanks-section,
 .quick-actions-section,
 .pump-controls-section,
 .valve-controls-section,
