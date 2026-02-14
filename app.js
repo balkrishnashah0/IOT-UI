@@ -509,32 +509,134 @@
     // ============================================
     // Quick Actions
     // ============================================
+    let isFillingAll = false;
+    let isEmptyingAll = false;
+
+    function updateQuickActionButtons() {
+        const fillAllBtn = document.getElementById('fillAllBtn');
+        const emptyAllBtn = document.getElementById('emptyAllBtn');
+        
+        // Update Fill All button styling
+        if (fillAllBtn) {
+            if (isFillingAll) {
+                fillAllBtn.classList.add('active');
+                fillAllBtn.style.background = 'var(--primary-blue)';
+                fillAllBtn.style.color = 'white';
+                fillAllBtn.style.borderColor = 'var(--primary-blue)';
+            } else {
+                fillAllBtn.classList.remove('active');
+                fillAllBtn.style.background = '';
+                fillAllBtn.style.color = '';
+                fillAllBtn.style.borderColor = '';
+            }
+        }
+        
+        // Update Empty All button styling
+        if (emptyAllBtn) {
+            if (isEmptyingAll) {
+                emptyAllBtn.classList.add('active');
+                emptyAllBtn.style.background = 'var(--error)';
+                emptyAllBtn.style.color = 'white';
+                emptyAllBtn.style.borderColor = 'var(--error)';
+            } else {
+                emptyAllBtn.classList.remove('active');
+                emptyAllBtn.style.background = '';
+                emptyAllBtn.style.color = '';
+                emptyAllBtn.style.borderColor = '';
+            }
+        }
+    }
+
     function fillAllTanks() {
+        // If already filling, stop; if emptying, stop that first
+        if (isFillingAll) {
+            isFillingAll = false;
+        } else {
+            // Stop emptying if active
+            if (isEmptyingAll) {
+                isEmptyingAll = false;
+                // Stop draining on all tanks
+                appState.tanks.forEach(tank => {
+                    tank.draining = false;
+                });
+            }
+            isFillingAll = true;
+        }
+        
         appState.tanks.forEach(tank => {
-            if (tank.level < 100) {
+            if (isFillingAll && tank.level < 100) {
                 tank.filling = true;
+                tank.draining = false;
                 const fillBtn = document.querySelector(`.tank-action-btn.fill[data-tank-id="${tank.id}"]`);
                 if (fillBtn) {
                     fillBtn.style.background = 'var(--primary-blue)';
                     fillBtn.style.color = 'white';
                 }
+                // Reset empty button
+                const emptyBtn = document.querySelector(`.tank-action-btn.empty[data-tank-id="${tank.id}"]`);
+                if (emptyBtn) {
+                    emptyBtn.style.background = '';
+                    emptyBtn.style.color = '';
+                }
+            } else {
+                tank.filling = false;
+                const fillBtn = document.querySelector(`.tank-action-btn.fill[data-tank-id="${tank.id}"]`);
+                if (fillBtn) {
+                    fillBtn.style.background = '';
+                    fillBtn.style.color = '';
+                }
             }
         });
-        showToast('Filling all tanks...', 'success');
+        
+        updateQuickActionButtons();
+        showToast(isFillingAll ? 'Filling all tanks...' : 'Stopped filling all tanks', 
+                  isFillingAll ? 'success' : 'info');
     }
 
     function emptyAllTanks() {
+        // If already emptying, stop; if filling, stop that first
+        if (isEmptyingAll) {
+            isEmptyingAll = false;
+        } else {
+            // Stop filling if active
+            if (isFillingAll) {
+                isFillingAll = false;
+                // Stop filling on all tanks
+                appState.tanks.forEach(tank => {
+                    tank.filling = false;
+                });
+            }
+            isEmptyingAll = true;
+        }
+        
         appState.tanks.forEach(tank => {
-            if (tank.level > 0) {
+            if (isEmptyingAll && tank.level > 0) {
                 tank.draining = true;
+                tank.filling = false;
                 const emptyBtn = document.querySelector(`.tank-action-btn.empty[data-tank-id="${tank.id}"]`);
                 if (emptyBtn) {
                     emptyBtn.style.background = 'var(--error)';
                     emptyBtn.style.color = 'white';
                 }
+                // Reset fill button
+                const fillBtn = document.querySelector(`.tank-action-btn.fill[data-tank-id="${tank.id}"]`);
+                if (fillBtn) {
+                    fillBtn.style.background = '';
+                    fillBtn.style.color = '';
+                }
+            } else {
+                tank.draining = false;
+                const emptyBtn = document.querySelector(`.tank-action-btn.empty[data-tank-id="${tank.id}"]`);
+                if (emptyBtn) {
+                    emptyBtn.style.background = '';
+                    emptyBtn.style.color = '';
+                }
             }
         });
-        showToast('Emptying all tanks...', 'warning');
+        
+        updateQuickActionButtons();
+        showToast(isEmptyingAll ? 'Emptying all tanks...' : 'Stopped emptying all tanks', 
+                  isEmptyingAll ? 'warning' : 'info');
     }
 
     function toggleAutoMode() {
@@ -570,6 +672,11 @@
                 tank.filling = false;
                 tank.draining = false;
             });
+            
+            // Reset quick action states
+            isFillingAll = false;
+            isEmptyingAll = false;
+            updateQuickActionButtons();
             
             // Update all tank buttons
             document.querySelectorAll('.tank-action-btn.fill').forEach(btn => {
