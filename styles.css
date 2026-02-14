@@ -867,6 +867,7 @@ input:disabled + .slider {
     color: var(--primary-blue);
     font-size: 1.25rem;
     flex-shrink: 0;
+    display: inline-flex;
 }
 
 .valve-icon.warning-icon {
