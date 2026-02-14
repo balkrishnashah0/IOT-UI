@@ -394,7 +394,7 @@
             valve.open = open;
         }
         
-        // Update dial buttons
+        // Update dial buttons - highlight nearest step
         const dial = document.getElementById(`${valveId}ValveDial`);
         const input = document.getElementById(`${valveId}ValveInput`);
         const toggleBtn = document.getElementById(`${valveId}ValveToggle`);
@@ -402,9 +402,21 @@
         
         if (dial) {
             const buttons = dial.querySelectorAll('.dial-step');
+            const steps = [0, 25, 50, 75, 100];
+            // Find nearest step
+            let nearestStep = steps[0];
+            let minDiff = Math.abs(percentage - nearestStep);
+            for (const step of steps) {
+                const diff = Math.abs(percentage - step);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    nearestStep = step;
+                }
+            }
+            // Highlight exact match or nearest step
             buttons.forEach(btn => {
                 const value = parseInt(btn.dataset.value);
-                btn.classList.toggle('active', value === percentage);
+                btn.classList.toggle('active', value === percentage || value === nearestStep);
             });
         }
         
@@ -432,21 +444,11 @@
     }
 
     function handleInputChange(valveId, value) {
-        // Snap to nearest step (0, 25, 50, 75, 100)
-        const steps = [0, 25, 50, 75, 100];
-        let nearest = steps[0];
-        let minDiff = Math.abs(value - nearest);
+        // Allow any value between 0-100
+        value = Math.max(0, Math.min(100, value));
         
-        for (const step of steps) {
-            const diff = Math.abs(value - step);
-            if (diff < minDiff) {
-                minDiff = diff;
-                nearest = step;
-            }
-        }
-        
-        const open = nearest > 0;
-        updateValveState(valveId, nearest, open);
+        const open = value > 0;
+        updateValveState(valveId, value, open);
     }
 
     function handleValveToggle(valveId) {
