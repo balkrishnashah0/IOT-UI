@@ -152,76 +152,6 @@
     // ============================================
     // Tank Management
     // ============================================
-    function renderTanks() {
-        const tanksGrid = document.getElementById('tanksGrid');
-        if (!tanksGrid) return;
-        
-        // Clear existing tanks (except the add card)
-        const existingTanks = tanksGrid.querySelectorAll('.tank-card');
-        existingTanks.forEach(tank => tank.remove());
-        
-        // Render each tank
-        appState.tanks.forEach(tank => {
-            const tankCard = createTankCard(tank);
-            tanksGrid.insertBefore(tankCard, document.getElementById('addTankCard'));
-        });
-    }
-
-    function createTankCard(tank) {
-        const card = document.createElement('div');
-        card.className = 'card tank-card';
-        card.id = `tank${tank.id}`;
-        
-        const level = Math.round((tank.level / 100) * tank.capacity);
-        const estFullTime = calculateEstFullTime(tank);
-        
-        card.innerHTML = `
-            <div class="tank-card-header">
-                <div class="tank-info">
-                    <span class="material-icons tank-icon">${tank.icon}</span>
-                    <h3>${tank.name}</h3>
-                </div>
-                <button class="tank-settings-btn" aria-label="Tank Settings" data-tank-id="${tank.id}">
-                    <span class="material-icons">more_vert</span>
-                </button>
-            </div>
-            
-            <div class="tank-visual">
-                <div class="tank-container">
-                    <div class="water-fill" id="tank${tank.id}Fill" style="height: ${tank.level}%;">
-                        <span class="water-percentage" id="tank${tank.id}Percentage">${tank.level}%</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tank-stats">
-                <div class="stat-item">
-                    <span class="stat-label">Level</span>
-                    <span class="stat-value" id="tank${tank.id}Level">${level} L</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Capacity</span>
-                    <span class="stat-value">${tank.capacity} L</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Est. Full</span>
-                    <span class="stat-value" id="tank${tank.id}EstFull">${estFullTime}</span>
-                </div>
-            </div>
-            
-            <div class="tank-actions">
-                <button class="tank-action-btn fill" data-tank-id="${tank.id}" aria-label="Fill Tank">
-                    <span class="material-icons">water</span>
-                </button>
-                <button class="tank-action-btn empty" data-tank-id="${tank.id}" aria-label="Empty Tank">
-                    <span class="material-icons">remove_circle_outline</span>
-                </button>
-            </div>
-        `;
-        
-        return card;
-    }
-
     function calculateEstFullTime(tank) {
         if (tank.level >= 100) return 'Full';
         if (tank.level < 100 && tank.filling) {
@@ -278,10 +208,6 @@
         
         showToast(tank.filling ? `Filling ${tank.name}...` : `Stopped filling ${tank.name}`, 
                   tank.filling ? 'success' : 'info');
-        
-        if (!tank.draining) {
-            updateTankLevel(tankId, 0); // Will trigger the interval
-        }
     }
 
     function emptyTank(tankId) {
@@ -317,12 +243,6 @@
         };
         
         appState.tanks.push(newTank);
-        
-        // Re-render tanks
-        renderTanks();
-        
-        // Re-attach event listeners
-        attachTankEventListeners();
         
         showToast(`Added ${newTank.name} (${newTank.capacity}L)`, 'success');
         
@@ -844,9 +764,6 @@
         
         // Initialize theme
         initTheme();
-        
-        // Initialize tanks
-        renderTanks();
         
         // Initialize event handlers
         initEventHandlers();

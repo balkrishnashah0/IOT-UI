@@ -273,14 +273,19 @@ body {
 .tanks-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-md);
+    gap: var(--space-sm);
+}
+
+/* Add Tank Card - Full width */
+.add-tank-card {
+    grid-column: 1 / -1;
 }
 
 /* Card Widget */
 .card {
     background: var(--bg-card);
     border-radius: var(--radius-md);
-    padding: var(--space-md);
+    padding: var(--space-sm);
     box-shadow: var(--shadow-md);
     transition: background-color 0.3s ease, box-shadow 0.2s ease;
 }
@@ -295,7 +300,7 @@ body {
 .tank-card {
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
 }
 
 .tank-card-header {
@@ -314,26 +319,30 @@ body {
 
 .tank-icon {
     color: var(--primary-blue);
-    font-size: 1.25rem;
+    font-size: 1rem;
 }
 
 .tank-info h3 {
-    font-size: var(--font-size-sm);
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .tank-settings-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     border: none;
     border-radius: var(--radius-sm);
     background: transparent;
     cursor: pointer;
     transition: background 0.2s;
+    flex-shrink: 0;
 }
 
 .tank-settings-btn:hover {
@@ -341,26 +350,26 @@ body {
 }
 
 .tank-settings-btn .material-icons {
-    font-size: 1.125rem;
+    font-size: 1rem;
     color: var(--text-muted);
 }
 
 /* Tank Visual - Animated */
 .tank-visual {
-    padding: var(--space-sm) 0;
+    padding: var(--space-xs) 0;
 }
 
 .tank-container {
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    height: 8rem;
+    height: 5rem;
     width: 100%;
-    max-width: 8rem;
+    max-width: 4rem;
     margin: 0 auto;
     background: linear-gradient(180deg, #E3F2FD 0%, #BBDEFB 100%);
-    border: 3px solid var(--primary-blue);
-    border-radius: var(--radius-md);
+    border: 2px solid var(--primary-blue);
+    border-radius: var(--radius-sm);
     overflow: hidden;
     position: relative;
 }
@@ -389,10 +398,10 @@ body {
 .water-fill::before {
     content: '';
     position: absolute;
-    top: -10px;
+    top: -5px;
     left: -50%;
     width: 200%;
-    height: 20px;
+    height: 10px;
     background: linear-gradient(90deg, 
         transparent 0%, 
         rgba(255,255,255,0.3) 50%, 
@@ -428,7 +437,7 @@ body {
 
 .water-percentage {
     color: white;
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-sm);
     font-weight: 700;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     z-index: 1;
@@ -444,26 +453,28 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding-top: var(--space-sm);
+    padding-top: var(--space-xs);
     border-top: 1px solid var(--border-color);
+    gap: var(--space-xs);
 }
 
 .stat-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 0;
+    flex: 1;
 }
 
 .stat-label {
-    font-size: var(--font-size-xs);
+    font-size: 0.6rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .stat-value {
-    font-size: var(--font-size-sm);
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--text-primary);
 }
@@ -473,16 +484,16 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: var(--space-md);
-    padding-top: var(--space-sm);
+    gap: var(--space-sm);
+    padding-top: var(--space-xs);
 }
 
 .tank-action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border: none;
     border-radius: var(--radius-full);
     cursor: pointer;
@@ -490,7 +501,7 @@ body {
 }
 
 .tank-action-btn .material-icons {
-    font-size: 1.25rem;
+    font-size: 1rem;
 }
 
 .tank-action-btn.fill {

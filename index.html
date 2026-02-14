@@ -50,7 +50,7 @@
                                 <span class="material-icons tank-icon">water_drop</span>
                                 <h3>Main Tank</h3>
                             </div>
-                            <button class="tank-settings-btn" aria-label="Tank Settings">
+                            <button class="tank-settings-btn" aria-label="Tank Settings" data-tank-id="1">
                                 <span class="material-icons">more_vert</span>
                             </button>
                         </div>
@@ -59,13 +59,6 @@
                             <div class="tank-container">
                                 <div class="water-fill" id="tank1Fill" style="height: 65%;">
                                     <span class="water-percentage" id="tank1Percentage">65%</span>
-                                </div>
-                                <div class="tank-markers">
-                                    <span>100%</span>
-                                    <span>75%</span>
-                                    <span>50%</span>
-                                    <span>25%</span>
-                                    <span>0%</span>
                                 </div>
                             </div>
                         </div>
@@ -86,10 +79,10 @@
                         </div>
                         
                         <div class="tank-actions">
-                            <button class="tank-action-btn fill" id="tank1FillBtn" aria-label="Fill Tank">
+                            <button class="tank-action-btn fill" id="tank1FillBtn" data-tank-id="1" aria-label="Fill Tank">
                                 <span class="material-icons">water</span>
                             </button>
-                            <button class="tank-action-btn empty" id="tank1EmptyBtn" aria-label="Empty Tank">
+                            <button class="tank-action-btn empty" id="tank1EmptyBtn" data-tank-id="1" aria-label="Empty Tank">
                                 <span class="material-icons">remove_circle_outline</span>
                             </button>
                         </div>
@@ -99,10 +92,10 @@
                     <div class="card tank-card" id="tank2">
                         <div class="tank-card-header">
                             <div class="tank-info">
-                                <span class="material-icons tank-icon"> underground</span>
+                                <span class="material-icons tank-icon">layers</span>
                                 <h3>Underground</h3>
                             </div>
-                            <button class="tank-settings-btn" aria-label="Tank Settings">
+                            <button class="tank-settings-btn" aria-label="Tank Settings" data-tank-id="2">
                                 <span class="material-icons">more_vert</span>
                             </button>
                         </div>
@@ -111,13 +104,6 @@
                             <div class="tank-container">
                                 <div class="water-fill" id="tank2Fill" style="height: 40%;">
                                     <span class="water-percentage" id="tank2Percentage">40%</span>
-                                </div>
-                                <div class="tank-markers">
-                                    <span>100%</span>
-                                    <span>75%</span>
-                                    <span>50%</span>
-                                    <span>25%</span>
-                                    <span>0%</span>
                                 </div>
                             </div>
                         </div>
@@ -138,31 +124,31 @@
                         </div>
                         
                         <div class="tank-actions">
-                            <button class="tank-action-btn fill" id="tank2FillBtn" aria-label="Fill Tank">
+                            <button class="tank-action-btn fill" id="tank2FillBtn" data-tank-id="2" aria-label="Fill Tank">
                                 <span class="material-icons">water</span>
                             </button>
-                            <button class="tank-action-btn empty" id="tank2EmptyBtn" aria-label="Empty Tank">
+                            <button class="tank-action-btn empty" id="tank2EmptyBtn" data-tank-id="2" aria-label="Empty Tank">
                                 <span class="material-icons">remove_circle_outline</span>
                             </button>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Add Tank Card (Hidden by default, shown when clicking add) -->
-                <div class="add-tank-card" id="addTankCard" style="display: none;">
-                    <div class="add-tank-form">
-                        <h3>Add New Tank</h3>
-                        <div class="form-group">
-                            <label for="newTankName">Tank Name</label>
-                            <input type="text" id="newTankName" class="form-input" placeholder="e.g., Rooftop Tank" maxlength="20">
-                        </div>
-                        <div class="form-group">
-                            <label for="newTankCapacity">Capacity (Liters)</label>
-                            <input type="number" id="newTankCapacity" class="form-input" placeholder="e.g., 2000" min="100" max="100000">
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn-cancel" id="cancelAddTank">Cancel</button>
-                            <button class="btn-add" id="confirmAddTank">Add Tank</button>
+                    
+                    <!-- Add Tank Card (Hidden by default, shown when clicking add) -->
+                    <div class="add-tank-card" id="addTankCard" style="display: none;">
+                        <div class="add-tank-form">
+                            <h3>Add New Tank</h3>
+                            <div class="form-group">
+                                <label for="newTankName">Tank Name</label>
+                                <input type="text" id="newTankName" class="form-input" placeholder="e.g., Rooftop Tank" maxlength="20">
+                            </div>
+                            <div class="form-group">
+                                <label for="newTankCapacity">Capacity (Liters)</label>
+                                <input type="number" id="newTankCapacity" class="form-input" placeholder="e.g., 2000" min="100" max="100000">
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn-cancel" id="cancelAddTank">Cancel</button>
+                                <button class="btn-add" id="confirmAddTank">Add Tank</button>
+                            </div>
                         </div>
                     </div>
                 </div>
